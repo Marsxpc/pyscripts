@@ -114,28 +114,34 @@ def stpy2rf(fpath):
                                     settingBody += f'\n\nForce Tags  {forceTagStr}'
     return settingHead + settingBody
 
-fpath = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_02\cases\客户API\添加客户.py'
-fpath1 = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_02\cases\__st__.py'
-basepath = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_lesson3\cases'
-# print(commpy2rf(fpath))
-# print(stpy2rf(fpath1))
-clear_robot_file(basepath)
-for pyFilePath in list_files(basepath, 'py'):
-    if '__st__.py' == os.path.split(pyFilePath)[-1]:
-        toBeWrite = stpy2rf(pyFilePath)
-        if not toBeWrite:
-            print(f'{pyFilePath}========>空文件')
+
+def py2rf(basepath):
+    clear_robot_file(basepath)
+    for pyFilePath in list_files(basepath, 'py'):
+        if '__st__.py' == os.path.split(pyFilePath)[-1]:
+            toBeWrite = stpy2rf(pyFilePath)
+            if not toBeWrite:
+                print(f'{pyFilePath}========>空文件')
+            else:
+                robotFilePath = os.path.join(os.path.dirname(pyFilePath),'__init__.robot')
+                with open(robotFilePath,'w',encoding='utf8') as f:
+                    f.write(toBeWrite)
+                print(f'{pyFilePath}========>success')
         else:
-            robotFilePath = os.path.join(os.path.dirname(pyFilePath),'__init__.robot')
-            with open(robotFilePath,'w',encoding='utf8') as f:
-                f.write(toBeWrite)
-            print(f'{pyFilePath}========>success')
-    else:
-        toBeWrite = commpy2rf(pyFilePath)
-        if not toBeWrite:
-            print(f'{pyFilePath}========>空文件')
-        else:
-            robotFilePath = pyFilePath[:-2]+'robot'
-            with open(robotFilePath, 'w', encoding='utf8') as f:
-                f.write(toBeWrite)
-            print(f'{pyFilePath}========>success')
+            toBeWrite = commpy2rf(pyFilePath)
+            if not toBeWrite:
+                print(f'{pyFilePath}========>空文件')
+            else:
+                robotFilePath = pyFilePath[:-2]+'robot'
+                with open(robotFilePath, 'w', encoding='utf8') as f:
+                    f.write(toBeWrite)
+                print(f'{pyFilePath}========>success')
+
+
+if __name__ == '__main__':
+    fpath = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_02\cases\客户API\添加客户.py'
+    fpath1 = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_02\cases\__st__.py'
+    basepath = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_lesson3\cases'
+    # print(commpy2rf(fpath))
+    # print(stpy2rf(fpath1))
+    py2rf(basepath)
