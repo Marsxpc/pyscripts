@@ -3,7 +3,13 @@
 # *************************************
 # @Time    : 2020/4/6 22:15
 # @Author  :
-# @Desc    :__st__.py是测试套件的初始化，对应__init__.robot，当指定force_tags时表示所在的目录下的用例都具有该标签，当存在__st__.py文件时，必须定义suite_setup和suite_teardown方法，普通py文件中可以定义多个测试类，一个类就对应一个用例，在类的上面可以打force_tags标签，表示该文件所有用例都具有该标签，测试类里面也可以打tag标签，指定这条用例具有该标签，使用tag和force_tags都必须传入列表的类型数据。类中可通过赋值name指定用例名，用例名可以有中文，但不建议里面有空格，类中必须定义setup，teardown，teststeps方法
+# @Desc    :这是python测试类写法转rf文件的脚本，主要转换两种文件。
+# 第一种是__st__.py文件，它是测试套件的初始化，对应__init__.robot，当__st__.py文件存在时，必须定义suite_setup和
+# suite_teardown方法，当指定force_tags时表示所在的目录下的用例都具有该标签。另一种是普通py文件，其中可以定义多个测试
+# 类，一个类就对应一个用例，在类的上面可以定义suite_setup和suite_teardown方法，表明用例执行进入和退出该文件时会分别执
+# 行这个初始化和清除，可以打force_tags标签，表示该文件所有用例都具有该标签，测试类里面也可以打tag标签，指定这条用例具有
+# 该标签，使用tag和force_tags都必须传入列表的类型数据。类中必须赋值name指定用例名，用例名可以有中文，但不建议里面有空
+# 格，类中必须定义setup，teardown，teststeps方法。
 # @File    : py2rf.py
 # *************************************
 import os, ast
@@ -43,7 +49,7 @@ def commpy2rf(fpath):
     caseHead = '\n\n\n\n*** Test Cases ***'
     caseBody = ''
 
-    with open(fpath, 'r',encoding='utf8') as f:
+    with open(fpath, 'r', encoding='utf8') as f:
         content = f.read()
         if not content:
             # 空文件不转换
@@ -53,18 +59,18 @@ def commpy2rf(fpath):
             # from pprint import pprint
             # pprint(ast.dump(tree))
             for classNode in tree.body:
-                if not isinstance(classNode, ast.ClassDef):
-                    for node in ast.walk(classNode):
-                        if isinstance(node,ast.Assign):
-                            if isinstance(node.targets[0],ast.Name):
-                                if 'force_tags' == node.targets[0].id:
-                                    # forceTagStr = ','.join(([f'\'{forceTagStrObj.s}\'' for
-                                    #                          forceTagStrObj in node.value.elts]))
-                                    # print('force_tags = [%s]' % forceTagStr)
-                                    forceTagStr = ''.join(([f'  {forceTagStrObj.s}' for
-                                                           forceTagStrObj in node.value.elts]))
-                                    settingBody +=f'\n\nForce Tags  {forceTagStr}'
-                else:
+                if isinstance(classNode, ast.FunctionDef):
+                    if 'suite_setup' == classNode.name:
+                        settingBody += '\n\nSuite Setup    M.suite_setup'
+                    elif 'suite_teardown' == classNode.name:
+                        settingBody += '\n\nSuite Teardown    M.suite_teardown'
+                elif isinstance(classNode, ast.Assign):
+                    if isinstance(classNode.targets[0], ast.Name):
+                        if 'force_tags' == classNode.targets[0].id:
+                            forceTagStr = ''.join(([f'  {forceTagStrObj.s}' for
+                                                    forceTagStrObj in classNode.value.elts]))
+                            settingBody += f'\n\nForce Tags  {forceTagStr}'
+                elif isinstance(classNode, ast.ClassDef):
                     # print('class: %s' % classNode.name)
                     caseName = ''
                     caseMain = f'\n  [Setup]     {classNode.name}.' \
@@ -73,8 +79,8 @@ def commpy2rf(fpath):
                     settingBody += f'\n\nLibrary  {os.path.split(fpath)[-1][:-3]}.' \
                                    f'{classNode.name}   WITH NAME  {classNode.name}'
                     for node in ast.walk(classNode):
-                        if isinstance(node,ast.Assign):
-                            if isinstance(node.targets[0],ast.Name):
+                        if isinstance(node, ast.Assign):
+                            if isinstance(node.targets[0], ast.Name):
                                 if 'name' == node.targets[0].id:
                                     # print('name = %s' % node.value.s)
                                     caseName = node.value.s
@@ -86,7 +92,7 @@ def commpy2rf(fpath):
                                                f'setup\n  [Teardown]  {classNode.name}.' \
                                                f'teardown\n\n  {classNode.name}.teststeps\n'
                     caseBody += f'\n\n{caseName}{caseMain}'
-    return settingHead+settingBody+caseHead+caseBody
+    return settingHead + settingBody + caseHead + caseBody
 
 
 def stpy2rf(fpath):
@@ -94,7 +100,7 @@ def stpy2rf(fpath):
     settingBody = f'\n\nLibrary  {os.path.split(fpath)[-1]}   WITH NAME  M' \
                   f'\n\nSuite Setup    M.suite_setup' \
                   f'\n\nSuite Teardown    M.suite_teardown'
-    with open(fpath, 'r',encoding='utf8') as f:
+    with open(fpath, 'r', encoding='utf8') as f:
         content = f.read()
         if not content:
             # 空文件不转换
@@ -123,8 +129,8 @@ def py2rf(basepath):
             if not toBeWrite:
                 print(f'{pyFilePath}========>空文件')
             else:
-                robotFilePath = os.path.join(os.path.dirname(pyFilePath),'__init__.robot')
-                with open(robotFilePath,'w',encoding='utf8') as f:
+                robotFilePath = os.path.join(os.path.dirname(pyFilePath), '__init__.robot')
+                with open(robotFilePath, 'w', encoding='utf8') as f:
                     f.write(toBeWrite)
                 print(f'{pyFilePath}========>success')
         else:
@@ -132,16 +138,19 @@ def py2rf(basepath):
             if not toBeWrite:
                 print(f'{pyFilePath}========>空文件')
             else:
-                robotFilePath = pyFilePath[:-2]+'robot'
+                robotFilePath = pyFilePath[:-2] + 'robot'
                 with open(robotFilePath, 'w', encoding='utf8') as f:
                     f.write(toBeWrite)
                 print(f'{pyFilePath}========>success')
 
 
 if __name__ == '__main__':
-    fpath = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_02\cases\客户API\添加客户.py'
+    fpath = r'D:\视频\代码\autotest_hyrobot\cases\功能1 - 副本.py'
     fpath1 = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_02\cases\__st__.py'
-    basepath = r'C:\Users\rg_16\Downloads\Compressed\autotest_bysms_lesson3\cases'
+    basepath = r'D:\tmp\yj_auto\cases'
     # print(commpy2rf(fpath))
     # print(stpy2rf(fpath1))
+
+    # clear_robot_file(basepath)
+
     py2rf(basepath)
