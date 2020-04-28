@@ -18,7 +18,6 @@ pipeline {
                     }
                     else{
                     mail bcc: '', body: "构建版本失败", cc: '', charset: 'UTF-8', from: 'rg_164518@126.com', mimeType: 'text/plain', replyTo: '', subject: "build_${BUILD_NUMBER}", to: "1918520482@qq.com";
-                    throw
                     }
                 }
 
