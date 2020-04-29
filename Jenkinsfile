@@ -3,17 +3,19 @@ pipeline {
     stages {
         stage('Dev_Test') {
             steps {
-                echo 'starting auto test...'
-                try{
-                    dir ('d:\\tmp\\yj_auto') {
-                        bat 'robot --pythonpath . -L debug cases'
+                script{
+                    echo 'starting auto test...'
+                    try{
+                        dir ('d:\\tmp\\yj_auto') {
+                            bat 'robot --pythonpath . -L debug cases'
+                        }
                     }
-                }
-                catch (err) {
-                    echo 'test fail!!!'
-                }
-                dir ('d:\\tmp\\yj_auto') {
-                    bat 'python spend.py'
+                    catch (err) {
+                        echo 'test fail!!!'
+                    }
+                    dir ('d:\\tmp\\yj_auto') {
+                        bat 'python spend.py'
+                    }
                 }
             }
 
