@@ -27,7 +27,7 @@ pipeline {
         }
         failure {
             emailext (
-                subject: "构建版本失败",body: "${FILE ,path='D:/tmp/yj_auto/report.html'}",
+                subject: "构建版本失败",body: "${FILE ,path='D:\\tmp\\yj_auto\\report.html'}",
                 charset: 'UTF-8', from: 'rg_164518@126.com', mimeType: 'text/html',
                 to: "1918520482@qq.com"
                 )
