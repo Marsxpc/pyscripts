@@ -21,7 +21,7 @@ pipeline {
     }
     post {
         always {
-            bat 'copy d:\\tmp\\yj_auto\\report.html ${JENKINS_HOME}\workspace\${ITEM_FULL_NAME}'
+            bat 'copy d:\\tmp\\yj_auto\\report.html ${JENKINS_HOME}\\workspace\\${ITEM_FULL_NAME}'
         }
         success {
             mail bcc: '', body: "构建版本成功", cc: '', charset: 'UTF-8', from: 'rg_164518@126.com', mimeType: 'text/plain', replyTo: '', subject: "构建版本成功", to: "1918520482@qq.com";
