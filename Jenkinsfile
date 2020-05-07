@@ -5,7 +5,7 @@ pipeline {
             steps {
                 script{
                     dir ('d:\\tmp\\yj_auto') {
-                        bat 'for /r . %i in (*.xml,*.html) do @del %i'
+                        bat 'for /r . %%i in (*.xml,*.html) do @del %%i'
                         echo 'starting auto test...'
                         try{
                             bat 'robot --pythonpath . -L debug cases'
