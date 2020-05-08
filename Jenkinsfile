@@ -8,7 +8,7 @@ pipeline {
                         bat 'for /r . %%i in (*.xml,*.html) do @del %%i'
                         echo 'starting auto test...'
                         try{
-                            bat 'robot --pythonpath . --test 接口-班级管理1001 -L debug cases'
+                            bat 'robot --pythonpath . --test *1001 -L debug cases'
                         }
                         catch (err) {
                             echo 'test fail!!!'
@@ -21,7 +21,7 @@ pipeline {
     }
     post {
         always {
-            bat '''copy d:\\tmp\\yj_auto\\report.html $JENKINS_HOME\\workspace\\${PROJECT_NAME}'''
+            bat '''copy d:\\tmp\\yj_auto\\report.html d:\\SoftWare\\Jenkins\\workspace\\yj'''
         }
         success {
             mail bcc: '', body: "构建版本成功", cc: '', charset: 'UTF-8', from: 'rg_164518@126.com', mimeType: 'text/plain', replyTo: '', subject: "构建版本成功", to: "1918520482@qq.com";
