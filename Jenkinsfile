@@ -5,7 +5,7 @@ pipeline {
             steps {
                 script{
                     dir ('d:\\tmp\\yj_auto') {
-                        bat 'for /r . %%i in (*.xml,*.html) do @del %%i'
+                        bat 'for %%i in (*.xml,*.html) do @del %%i'
                         echo 'starting auto test...'
                         try{
                             bat 'robot --pythonpath . --test *1001 -L debug cases'
@@ -13,7 +13,7 @@ pipeline {
                         catch (err) {
                             echo 'test fail!!!'
                         }
-                        bat 'python spend.py'
+                        bat 'python spend.py ${BUILD_NUMBER} ${BUILD_URL} ${JENKINS_URL} ${PROJECT_NAME} ${PROJECT_URL}'
                     }
                 }
             }
@@ -21,7 +21,7 @@ pipeline {
     }
     post {
         always {
-            bat '''copy d:\\HbuilderProjects\\css-study\\daily_report.html d:\\SoftWare\\Jenkins\\workspace\\yj'''
+            bat '''copy d:\\tmp\\yj_auto\\daily_report.html d:\\SoftWare\\Jenkins\\workspace\\yj'''
         }
         success {
             mail bcc: '', body: "构建版本成功", cc: '', charset: 'UTF-8', from: 'rg_164518@126.com', mimeType: 'text/plain', replyTo: '', subject: "构建版本成功", to: "1918520482@qq.com";
