@@ -13,9 +13,7 @@ pipeline {
                         catch (err) {
                             echo 'test fail!!!'
                         }
-                        echo '1...'
-                        bat '''python spend.py ${BUILD_NUMBER} ${BUILD_URL} ${JENKINS_URL} ${PROJECT_NAME} ${PROJECT_URL}'''
-                        echo '2...'
+                        bat '''python spend.py "${BUILD_NUMBER}" ${BUILD_URL} ${JENKINS_URL} ${PROJECT_NAME} ${PROJECT_URL}'''
                     }
                 }
             }
